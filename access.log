@@ -1,0 +1,17 @@
+GET /api/persons 200 223 - 1.553 ms {}
+POST /api/persons/ 201 60 - 0.391 ms {"number":"123 456 789","name":"Christian Kruf"}
+GET /api/persons 200 223 - 1.439 ms {}
+GET /favicon.ico 404 150 - 1.233 ms {}
+POST /api/persons/ 201 60 - 0.366 ms {"number":"123 456 789","name":"Christian Kruf"}
+GET /api/persons 200 284 - 0.445 ms {}
+GET /api/persons 304 - - 0.248 ms {}
+GET /api/persons 304 - - 0.280 ms {}
+GET /api/persons 200 223 - 1.720 ms {}
+GET /api/persons 304 - - 1.655 ms {}
+GET /api/persons 304 - - 0.700 ms {}
+GET /api/persons 304 - - 0.341 ms {}
+GET /api/persons/ 200 223 - 0.572 ms {}
+GET /api/persons/ 304 - - 0.290 ms {}
+GET /api/persons 304 - - 0.294 ms {}
+GET /api/persons 304 - - 0.269 ms {}
+GET /api/persons/ 304 - - 0.222 ms {}
