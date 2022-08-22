@@ -6,7 +6,7 @@ const { getRandomInt } = require("./helpers");
 // configure express
 const app = express();
 app.use(express.json());
-const port = 3001;
+const PORT = process.env.PORT || 3001;
 // import fs to enable morgan to log to file
 const fs = require('fs');
 // import and configure morgan for logging
@@ -108,6 +108,6 @@ app.post("/api/persons", (req, res) => {
 
 })
 
-app.listen(port, () => {
+app.listen(PORT, () => {
     console.log(`Server running on port ${port}`);
 })
