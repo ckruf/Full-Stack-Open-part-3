@@ -24,6 +24,8 @@ By using cors, the server will allow requests from other hosts.
 */
 const cors = require('cors');
 app.use(cors());
+// Make express serve static content
+app.use(express.static('build'));
 
 // Get all persons in phonebook
 app.get("/api/persons", (req, res) => {
