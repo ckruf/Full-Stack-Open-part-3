@@ -31,3 +31,9 @@ GET /api/persons 304 - - 0.419 ms {}
 GET /favicon.ico 304 - - 0.612 ms {}
 GET /manifest.json 304 - - 0.602 ms {}
 GET /logo192.png 304 - - 0.277 ms {}
+GET /api/persons 304 - - 2.743 ms {}
+GET / 304 - - 0.948 ms {}
+GET /static/js/main.e28f386c.js 304 - - 0.327 ms {}
+GET /manifest.json 304 - - 0.332 ms {}
+GET /logo192.png 304 - - 0.304 ms {}
+GET /api/persons 200 223 - 2.644 ms {}
