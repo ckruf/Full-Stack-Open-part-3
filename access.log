@@ -37,3 +37,28 @@ GET /static/js/main.e28f386c.js 304 - - 0.327 ms {}
 GET /manifest.json 304 - - 0.332 ms {}
 GET /logo192.png 304 - - 0.304 ms {}
 GET /api/persons 200 223 - 2.644 ms {}
+GET /info 200 124 - 5.373 ms {}
+GET /info 200 109 - 35.070 ms {}
+GET /favicon.ico 304 - - 0.841 ms {}
+POST /api/persons 201 81 - 3.056 ms {"number":"123 456 789","name":"Bara Havlickova"}
+GET /info 200 109 - 30.650 ms {}
+GET /favicon.ico 304 - - 0.318 ms {}
+GET /api/persons 200 164 - 35.990 ms {}
+GET /favicon.ico 304 - - 0.896 ms {}
+GET /api/persons 304 - - 38.700 ms {}
+GET /favicon.ico 304 - - 0.910 ms {}
+GET /api/persons/6307ae5a4fb6ee913d198f17 200 80 - 28.607 ms {}
+DELETE /api/persons/6307ae5a4fb6ee913d198f17 204 - - 0.710 ms {}
+GET /api/persons 200 83 - 46.725 ms {}
+POST /api/persons 201 78 - 1.821 ms {"name":"Christian Kruf","number":"123456789"}
+GET /api/persons 200 162 - 25.508 ms {}
+GET /favicon.ico 304 - - 0.430 ms {}
+DELETE /api/persons/630859d9f86fb58e45846814 204 - - 0.535 ms {}
+GET /api/persons 200 83 - 32.923 ms {}
+GET /favicon.ico 304 - - 0.407 ms {}
+POST /api/persons 201 78 - 4.170 ms {"name":"Christian Kruf","number":"123456789"}
+GET /api/persons 200 162 - 33.520 ms {}
+GET /favicon.ico 304 - - 0.802 ms {}
+DELETE /api/persons/630859fcc02bdb88e8d51ebd 204 - - 218.530 ms {}
+GET /api/persons 200 83 - 56.553 ms {}
+POST /api/persons 201 80 - 0.604 ms {"name":"Christian Kruf","number":"123 456 789"}

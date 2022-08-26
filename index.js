@@ -1,8 +1,8 @@
+// load environment variables from .env file 
+require('dotenv').config();
 // import express
 const express = require('express');
-// import my own functions/data
-let { persons } = require("./phonebook_data");
-const { getRandomInt } = require("./helpers");
+const Person = require("./models/person");
 // configure express
 const app = express();
 app.use(express.json());
@@ -29,13 +29,17 @@ app.use(express.static('build'));
 
 // Get all persons in phonebook
 app.get("/api/persons", (req, res) => {
-    console.log("GET /api/persons");
-    res.json(persons);
+    Person.find({})
+    .then(queryResult => {
+        res.json(queryResult);
+    })
 })
 
 // Get number of persons in phonebook
-app.get("/info", (req, res) => {
-    let personCount = persons.length;
+app.get("/info", async (req, res) => {
+    let personCount = await Person.countDocuments();
+    console.log("personCount is:");
+    console.log(personCount);
     let infoString = `<p>Phonebook has info for ${personCount} people</p>`;
     let date = new Date()
     let dateString = `<p>${date}</p>`;
@@ -44,10 +48,10 @@ app.get("/info", (req, res) => {
 })
 
 // Get single person in phonebook
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", async (req, res) => {
     let id = req.params.id;
     console.log(`id is ${id}`);
-    let person = persons.find(person => person.id == id);
+    let person = await Person.findById(id).exec();
     if (person) {
         return res.json(person);
     }
@@ -56,13 +60,14 @@ app.get("/api/persons/:id", (req, res) => {
     }
 })
 
-// Dekete single person from phonebook
-app.delete("/api/persons/:id", (req, res) => {
+// Delete single person from phonebook
+app.delete("/api/persons/:id", async (req, res) => {
     let id = req.params.id;
-    let lengthBefore = persons.length;
+    console.log(`id is ${id}`);
+    let lengthBefore = await Person.countDocuments();
     console.log(`length before delete is ${lengthBefore}`);
-    persons = persons.filter(person => person.id != id);
-    let lengthAfter =persons.length;
+    Person.deleteOne({_id: id}).then();
+    let lengthAfter = await Person.countDocuments();
     console.log(`length after delete is ${lengthAfter}`);
     if (lengthBefore === lengthAfter) {
         return res.status(404).end();
@@ -75,37 +80,29 @@ app.delete("/api/persons/:id", (req, res) => {
 // Add new person to phonebook
 app.post("/api/persons", (req, res) => {
     let jsonBody = req.body;
-    let newPerson = {};
 
     if (!jsonBody) {
         return res.status(400).json({error: "Request must have JSON payload"});
     }
     
-    if (jsonBody.number) {
-        newPerson.number = jsonBody.number;
-    }
-    else {
+    if (!jsonBody.number) {
         return res.status(400).json({error: "Number must be present"});
     }
     
-    if (jsonBody.name) {
-        newPerson.name = jsonBody.name;
-    }
-    else {
+    if (!jsonBody.name) {
         return res.status(400).json({error: "Name must be present"});
     }
 
-    if (persons.find(person => person.name === jsonBody.name)) {
-        return res.status(400).json({error: "Person already exists in phonebook"});
-    }
+    const newPerson = new Person({
+        name: jsonBody.name,
+        number: jsonBody.number
+    })
 
-    let newId = getRandomInt(0, 1000000);
-    while (persons.find(person => person.id === newId)) {
-        newId = getRandomInt(0, 1000000);
-    }
-    newPerson.id = newId;
+    newPerson.save()
+    .then(() => {
+        console.log(`Added new person to database, name: ${jsonBody.name}. number: ${jsonBody.number}`);
+    })
     
-    persons.push(newPerson);
     return res.status(201).json(newPerson);
 
 })
