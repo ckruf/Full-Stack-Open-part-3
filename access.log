@@ -62,3 +62,27 @@ GET /favicon.ico 304 - - 0.802 ms {}
 DELETE /api/persons/630859fcc02bdb88e8d51ebd 204 - - 218.530 ms {}
 GET /api/persons 200 83 - 56.553 ms {}
 POST /api/persons 201 80 - 0.604 ms {"name":"Christian Kruf","number":"123 456 789"}
+GET / 200 584 - 2.913 ms {}
+GET /static/js/main.e28f386c.js 200 165960 - 0.681 ms {}
+GET /manifest.json 200 492 - 0.451 ms {}
+GET /logo192.png 200 5347 - 0.548 ms {}
+GET /api/persons 200 164 - 489.703 ms {}
+GET / 304 - - 0.571 ms {}
+GET /static/js/main.e28f386c.js 304 - - 0.290 ms {}
+GET /manifest.json 304 - - 0.439 ms {}
+GET /favicon.ico 200 3870 - 1.147 ms {}
+GET /logo192.png 304 - - 0.273 ms {}
+GET /api/persons 304 - - 165.759 ms {}
+GET /api/persons 304 - - 28.188 ms {}
+GET /api/persons 200 164 - 33.192 ms {}
+GET / 304 - - 0.330 ms {}
+GET /static/js/main.e28f386c.js 304 - - 0.298 ms {}
+GET /manifest.json 304 - - 0.248 ms {}
+GET /logo192.png 304 - - 0.268 ms {}
+GET /api/persons 304 - - 31.799 ms {}
+GET /api/persons 304 - - 30.262 ms {}
+GET / 304 - - 0.226 ms {}
+GET /static/js/main.e28f386c.js 304 - - 0.270 ms {}
+GET /api/persons 304 - - 28.327 ms {}
+GET /manifest.json 304 - - 0.247 ms {}
+GET /logo192.png 304 - - 0.188 ms {}

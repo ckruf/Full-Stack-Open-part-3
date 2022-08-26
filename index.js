@@ -24,7 +24,18 @@ By using cors, the server will allow requests from other hosts.
 */
 const cors = require('cors');
 app.use(cors());
-// Make express serve static content
+/*
+By using express.static('build'), we are connecting our frontend to our backend. Express will use
+the React production build in the ./build/ directory and then show the React main page (index.html)
+when we go to the '/' path of the backend. So if our backend is served on localhost:3001, going to 
+localhost:3001/ will show the main page of the React app. In this particular case, the connection
+between the frontend and the backend in the other direction is made possible by using relative
+paths in the React app, such as /api/persons, without specifying the server, in combination with 
+the fact that the React app's package.json file has a proxy set to localhost:3001. By using relative
+paths, when React tries to send a request to /api/persons, it will send a request to its own host,
+localhost:3000. But by setting a proxy in package.json, that request to itself gets redirected
+to a request to localhost:3001.
+*/
 app.use(express.static('build'));
 
 // Get all persons in phonebook
