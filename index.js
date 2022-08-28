@@ -23,6 +23,7 @@ By default, the server will only allow requests from the same domain (or rather,
 By using cors, the server will allow requests from other hosts.
 */
 const cors = require('cors');
+const { default: mongoose } = require('mongoose');
 app.use(cors());
 /*
 By using express.static('build'), we are connecting our frontend to our backend. Express will use
@@ -44,7 +45,7 @@ app.get("/api/persons", (req, res) => {
     .then(queryResult => {
         res.json(queryResult);
     })
-})
+});
 
 // Get number of persons in phonebook
 app.get("/info", async (req, res) => {
@@ -56,20 +57,27 @@ app.get("/info", async (req, res) => {
     let dateString = `<p>${date}</p>`;
     let htmlResponse = infoString + dateString;
     res.send(htmlResponse);
-})
+});
 
 // Get single person in phonebook
 app.get("/api/persons/:id", async (req, res) => {
     let id = req.params.id;
     console.log(`id is ${id}`);
-    let person = await Person.findById(id).exec();
+    let person;
+    try {
+        person = await Person.findById(id).exec();
+    }
+    catch (error) {
+        next(error);
+    }
+    
     if (person) {
         return res.json(person);
     }
     else {
         return res.status(404).end();
     }
-})
+});
 
 // Delete single person from phonebook
 app.delete("/api/persons/:id", async (req, res) => {
@@ -77,7 +85,14 @@ app.delete("/api/persons/:id", async (req, res) => {
     console.log(`id is ${id}`);
     let lengthBefore = await Person.countDocuments();
     console.log(`length before delete is ${lengthBefore}`);
-    Person.deleteOne({_id: id}).then();
+    try {
+        let result = await Person.findByIdAndRemove(id);
+        console.log("Deletion result is:");
+        console.log(result);
+    }
+    catch (error) {
+        next(error);
+    }
     let lengthAfter = await Person.countDocuments();
     console.log(`length after delete is ${lengthAfter}`);
     if (lengthBefore === lengthAfter) {
@@ -86,7 +101,7 @@ app.delete("/api/persons/:id", async (req, res) => {
     else {
         return res.status(204).end();
     }
-})
+});
 
 // Add new person to phonebook
 app.post("/api/persons", (req, res) => {
@@ -116,8 +131,70 @@ app.post("/api/persons", (req, res) => {
     
     return res.status(201).json(newPerson);
 
-})
+});
+
+app.put("/api/persons/:id", async (req, res) => {
+    console.log(`id is ${id}`);
+    let jsonBody = req.body;
+    if (!jsonBody) {
+        return res.status(400).json({error: "Request must have JSON payload"});
+    }
+    
+    if (!jsonBody.number) {
+        return res.status(400).json({error: "Number must be present"});
+    }
+
+    const numberUpdate = {
+        number: jsonBody.number
+    };
+
+    try {
+        // new: true makes findByIdAndUpdate return the document after it's been updated,
+        // by default the function returns the document before it's been updated
+        let updateResult = await Person.findByIdAndUpdate(req.params.id, numberUpdate, {new: true});
+        console.log(`updatedPerson: ${JSON.stringify(updateResult)}`);
+    }
+    catch (error) {
+        next(error);
+    }
+}) 
+
+
+// unsupported endpoints middleware - must be loaded as the last, except for the error handling middlewar
+// The reason why the error handling middleware must be the very last is explained in the comment below.
+// The reason why the unknownEndpoint middleware must be as one of the last, is because the express
+// code is executed in order. So if the unknownEndpoint middleware were first, it would be used for
+// all requests, before any defined endpoint-handling functions would have the chance to respond
+// to the request.
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({error: "unknown endpoint"});
+}
+
+app.use(unknownEndpoint);
+
+
+// Error handling middleware must be loaded last. If we had any middlewares defined after
+// the error handling middleware, those would only be called when next() is invoked in the 
+// error handling middleware - meaning they would only be execute if an error occured, which 
+// is typically not the desired behaviour. We presumably want all non-error-handling middleware
+// to execute always - not only in case of an error.
+const errorHandler = (error, req, res, next) => {
+    console.error(error);
+    console.error(error.message);
+
+    // for CastError, we return specific response
+    if (error instanceof mongoose.Error.CastError) {
+        console.log(`Could not cast given id ${req.params.id} to ObjectId`);
+        return res.status(400).send({error: 'malformatted id'});
+    }
+    
+    // for any other error, we pass it to default express error handler
+    next(error);
+
+}
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-})
+});

@@ -86,3 +86,7 @@ GET /static/js/main.e28f386c.js 304 - - 0.270 ms {}
 GET /api/persons 304 - - 28.327 ms {}
 GET /manifest.json 304 - - 0.247 ms {}
 GET /logo192.png 304 - - 0.188 ms {}
+GET /api/persons 304 - - 33.473 ms {}
+GET /api/persons/63085ab2c02bdb88e8d51ec4 200 80 - 28.202 ms {}
+GET /api/persons/someinvalidid 404 - - 4.089 ms {}
+GET /api/persons/someinvalidid 400 27 - 4.913 ms {}
