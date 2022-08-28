@@ -13,8 +13,20 @@ mongoose.connect(dbUri)
 });
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
+    name: {
+        type: String,
+        minLength: 3,
+        required: true
+    },
+    number: {
+        type: String,
+        minLength: 8,
+        required: true,
+        validate: {
+            validator: (v) => /\d{2,3}-\d/.test(v),
+            message: "Phone number must consist of two or three numbers, followed by a dash, followed by more numbers"
+        }
+    }
 });
 
 personSchema.set('toJSON', {

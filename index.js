@@ -1,29 +1,29 @@
 // load environment variables from .env file 
-require('dotenv').config();
+require("dotenv").config();
 // import express
-const express = require('express');
+const express = require("express");
 const Person = require("./models/person");
 // configure express
 const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3001;
 // import fs to enable morgan to log to file
-const fs = require('fs');
+const fs = require("fs");
 // import and configure morgan for logging
-const morgan = require('morgan');
-morgan.token('json-body', (req, res) => JSON.stringify(req.body))
-const morganConfig = ':method :url :status :res[content-length] - :response-time ms :json-body';
+const morgan = require("morgan");
+morgan.token("json-body", (req, res) => JSON.stringify(req.body));
+const morganConfig = ":method :url :status :res[content-length] - :response-time ms :json-body";
 app.use(morgan(morganConfig));
 app.use(morgan(morganConfig, {
-    stream: fs.createWriteStream('./access.log', {flags: 'a'})
+    stream: fs.createWriteStream("./access.log", {flags: "a"})
 }));
 /* 
 import and use cors, so that our backend can be used by our front end.
 By default, the server will only allow requests from the same domain (or rather, the same tuple).
 By using cors, the server will allow requests from other hosts.
 */
-const cors = require('cors');
-const { default: mongoose } = require('mongoose');
+const cors = require("cors");
+const { default: mongoose } = require("mongoose");
 app.use(cors());
 /*
 By using express.static('build'), we are connecting our frontend to our backend. Express will use
@@ -37,14 +37,14 @@ paths, when React tries to send a request to /api/persons, it will send a reques
 localhost:3000. But by setting a proxy in package.json, that request to itself gets redirected
 to a request to localhost:3001.
 */
-app.use(express.static('build'));
+app.use(express.static("build"));
 
 // Get all persons in phonebook
 app.get("/api/persons", (req, res) => {
     Person.find({})
     .then(queryResult => {
         res.json(queryResult);
-    })
+    });
 });
 
 // Get number of persons in phonebook
@@ -53,14 +53,14 @@ app.get("/info", async (req, res) => {
     console.log("personCount is:");
     console.log(personCount);
     let infoString = `<p>Phonebook has info for ${personCount} people</p>`;
-    let date = new Date()
+    let date = new Date();
     let dateString = `<p>${date}</p>`;
     let htmlResponse = infoString + dateString;
     res.send(htmlResponse);
 });
 
 // Get single person in phonebook
-app.get("/api/persons/:id", async (req, res) => {
+app.get("/api/persons/:id", async (req, res, next) => {
     let id = req.params.id;
     console.log(`id is ${id}`);
     let person;
@@ -80,7 +80,7 @@ app.get("/api/persons/:id", async (req, res) => {
 });
 
 // Delete single person from phonebook
-app.delete("/api/persons/:id", async (req, res) => {
+app.delete("/api/persons/:id", async (req, res, next) => {
     let id = req.params.id;
     console.log(`id is ${id}`);
     let lengthBefore = await Person.countDocuments();
@@ -104,7 +104,7 @@ app.delete("/api/persons/:id", async (req, res) => {
 });
 
 // Add new person to phonebook
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", async (req, res, next) => {
     let jsonBody = req.body;
 
     if (!jsonBody) {
@@ -119,21 +119,36 @@ app.post("/api/persons", (req, res) => {
         return res.status(400).json({error: "Name must be present"});
     }
 
+    try {
+        let sameNamePerson = await Person.findOne({name: jsonBody.name});
+        console.log("sameNamePerson is:");
+        console.log(sameNamePerson);
+        if (sameNamePerson) {
+            return res.status(400).json({error: "Person with given name already exists"});
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+
     const newPerson = new Person({
         name: jsonBody.name,
         number: jsonBody.number
-    })
+    });
 
-    newPerson.save()
-    .then(() => {
+    try {
+        let saveResult = await newPerson.save();
+        console.log("saveResult is:");
+        console.log(saveResult);
         console.log(`Added new person to database, name: ${jsonBody.name}. number: ${jsonBody.number}`);
-    })
-    
-    return res.status(201).json(newPerson);
-
+        return res.status(201).json(newPerson);
+    }
+    catch (error) {
+        next(error);
+    }
 });
 
-app.put("/api/persons/:id", async (req, res) => {
+app.put("/api/persons/:id", async (req, res, next) => {
     console.log(`id is ${req.params.id}`);
     let jsonBody = req.body;
     if (!jsonBody) {
@@ -158,7 +173,7 @@ app.put("/api/persons/:id", async (req, res) => {
     catch (error) {
         next(error);
     }
-}) 
+});
 
 
 // unsupported endpoints middleware - must be loaded as the last, except for the error handling middlewar
@@ -169,7 +184,7 @@ app.put("/api/persons/:id", async (req, res) => {
 // to the request.
 const unknownEndpoint = (req, res) => {
     res.status(404).send({error: "unknown endpoint"});
-}
+};
 
 app.use(unknownEndpoint);
 
@@ -180,19 +195,22 @@ app.use(unknownEndpoint);
 // is typically not the desired behaviour. We presumably want all non-error-handling middleware
 // to execute always - not only in case of an error.
 const errorHandler = (error, req, res, next) => {
-    console.error(error);
     console.error(error.message);
 
     // for CastError, we return specific response
     if (error instanceof mongoose.Error.CastError) {
         console.log(`Could not cast given id ${req.params.id} to ObjectId`);
-        return res.status(400).send({error: 'malformatted id'});
+        return res.status(400).send({error: "malformatted id"});
+    }
+
+    if (error instanceof mongoose.Error.ValidationError) {
+        return res.status(400).json({error: error.message});
     }
     
     // for any other error, we pass it to default express error handler
     next(error);
 
-}
+};
 
 app.use(errorHandler);
 
