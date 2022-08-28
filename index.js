@@ -134,7 +134,7 @@ app.post("/api/persons", (req, res) => {
 });
 
 app.put("/api/persons/:id", async (req, res) => {
-    console.log(`id is ${id}`);
+    console.log(`id is ${req.params.id}`);
     let jsonBody = req.body;
     if (!jsonBody) {
         return res.status(400).json({error: "Request must have JSON payload"});
@@ -153,6 +153,7 @@ app.put("/api/persons/:id", async (req, res) => {
         // by default the function returns the document before it's been updated
         let updateResult = await Person.findByIdAndUpdate(req.params.id, numberUpdate, {new: true});
         console.log(`updatedPerson: ${JSON.stringify(updateResult)}`);
+        return res.status(200).json(updateResult);
     }
     catch (error) {
         next(error);
